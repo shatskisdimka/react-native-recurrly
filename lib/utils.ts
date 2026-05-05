@@ -5,8 +5,8 @@ export function formatCurrency(
   currency: string = 'USD',
 ): string {
   try {
-    if (typeof value !== 'number') {
-      throw new Error('Value must be a number')
+    if (typeof value !== 'number' || !Number.isFinite(value)) {
+      throw new Error('Value must be a finite number')
     }
     const formatted = value.toFixed(2)
     const symbol = currency === 'USD' ? '$' : '€'

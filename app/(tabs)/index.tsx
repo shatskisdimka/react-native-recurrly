@@ -8,6 +8,7 @@ import {
 import { icons } from '@/constants/icons'
 import images from '@/constants/images'
 import '@/global.css'
+import dayjs from 'dayjs'
 import { styled } from 'nativewind'
 import { useState } from 'react'
 import { FlatList, Image, Text, View } from 'react-native'
@@ -15,7 +16,6 @@ import { SafeAreaView as RNSafeAreaView } from 'react-native-safe-area-context'
 import ListHeading from '../../components/ListHeading'
 import { HOME_BALANCE } from '../../constants/data'
 import { formatCurrency } from '../../lib/utils'
-import dayjs from '../../node_modules/dayjs/esm/index'
 
 const SafeAreaView = styled(RNSafeAreaView)
 
