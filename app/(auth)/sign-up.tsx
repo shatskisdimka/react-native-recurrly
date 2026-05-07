@@ -102,7 +102,9 @@ const SignUp = () => {
   const handleStartOver = async () => {
     try {
       await signUp.reset?.()
-    } catch (e) {}
+    } catch (e) {
+      console.error('Failed to reset sign-up:', e)
+    }
     router.replace('/(auth)/sign-up')
   }
 

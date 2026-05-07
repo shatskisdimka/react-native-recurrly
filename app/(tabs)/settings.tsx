@@ -10,7 +10,11 @@ const Settings = () => {
   const { user } = useUser()
 
   const handleSignOut = async () => {
-    await signOut()
+    try {
+      await signOut()
+    } catch (error) {
+      console.error('Sign out failed:', error)
+    }
   }
 
   const displayName =

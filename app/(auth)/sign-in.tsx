@@ -78,7 +78,10 @@ const SignIn = () => {
       )
 
       if (emailCodeFactor) {
-        await signIn.mfa.sendEmailCode()
+        const { error: sendError } = await signIn.mfa.sendEmailCode()
+        if (sendError) {
+          console.error('Failed to send email code:', sendError)
+        }
       }
     } else {
       console.error('Sign-in attempt not complete:', signIn)
