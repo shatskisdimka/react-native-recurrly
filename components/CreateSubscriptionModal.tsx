@@ -54,11 +54,14 @@ const CreateSubscriptionModal = ({
   const [frequency, setFrequency] = useState<Frequency>('Monthly')
   const [category, setCategory] = useState<Category>('Other')
 
-  const isValidForm = name.trim() !== '' && parseFloat(price) > 0
+  const normalizedPrice = price.trim()
+  const isValidPrice =
+    /^\d+(\.\d{1,2})?$/.test(normalizedPrice) && Number(normalizedPrice) > 0
+  const isValidForm = name.trim() !== '' && isValidPrice
   const handleSubmit = () => {
     if (!isValidForm) return
 
-    const priceValue = parseFloat(price)
+    const priceValue = Number(normalizedPrice)
     const now = dayjs()
     const renewalDate =
       frequency === 'Monthly' ? now.add(1, 'month') : now.add(1, 'year')

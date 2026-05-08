@@ -49,6 +49,13 @@ const Subscriptions = () => {
             }
           />
         )}
+        ListEmptyComponent={
+          <Text className="text-center text-dark/60 mt-6">
+            {searchQuery.trim()
+              ? 'No subscriptions match your search.'
+              : 'No subscriptions yet.'}
+          </Text>
+        }
         contentContainerStyle={{
           paddingHorizontal: 20,
           paddingBottom: 20,
