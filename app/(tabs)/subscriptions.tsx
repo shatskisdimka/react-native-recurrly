@@ -28,7 +28,7 @@ const Subscriptions = () => {
         keyExtractor={(item) => item.id}
         ListHeaderComponent={
           <View className="px-5 pt-5">
-            <Text className="text-3xl font-bold text-dark mb-5">
+            <Text className="text-3xl font-bold text-primary mb-5">
               Subscriptions
             </Text>
             <TextInput
@@ -56,11 +56,8 @@ const Subscriptions = () => {
               : 'No subscriptions yet.'}
           </Text>
         }
-        contentContainerStyle={{
-          paddingHorizontal: 20,
-          paddingBottom: 20,
-          gap: 12,
-        }}
+        contentContainerClassName="pb-30 px-5"
+        ItemSeparatorComponent={() => <View className="h-3" />}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
