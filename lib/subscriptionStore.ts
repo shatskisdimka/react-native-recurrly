@@ -5,6 +5,7 @@ interface SubscriptionStore {
   subscriptions: Subscription[]
   addSubscription: (subscription: Subscription) => void
   setSubscriptions: (subscriptions: Subscription[]) => void
+  removeSubscription: (id: string) => void
 }
 
 export const useSubscriptionStore = create<SubscriptionStore>((set) => ({
@@ -12,4 +13,8 @@ export const useSubscriptionStore = create<SubscriptionStore>((set) => ({
   addSubscription: (subscription) =>
     set((state) => ({ subscriptions: [subscription, ...state.subscriptions] })),
   setSubscriptions: (subscriptions) => set({ subscriptions }),
+  removeSubscription: (id) =>
+    set((state) => ({
+      subscriptions: state.subscriptions.filter((sub) => sub.id !== id),
+    })),
 }))

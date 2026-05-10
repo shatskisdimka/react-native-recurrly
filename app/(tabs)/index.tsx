@@ -29,7 +29,8 @@ export default function App() {
     string | null
   >(null)
   const [isModalVisible, setIsModalVisible] = useState(false)
-  const { subscriptions, addSubscription } = useSubscriptionStore()
+  const { subscriptions, addSubscription, removeSubscription } =
+    useSubscriptionStore()
 
   const handleSubscriptionPress = (item: Subscription) => {
     setExpandedSubscriptionId((currentId) =>
@@ -39,6 +40,13 @@ export default function App() {
 
   const handleCreateSubscription = (newSubscription: Subscription) => {
     addSubscription(newSubscription)
+  }
+
+  const handleCancel = (id: string) => {
+    removeSubscription(id)
+    if (expandedSubscriptionId === id) {
+      setExpandedSubscriptionId(null)
+    }
   }
 
   return (
@@ -110,6 +118,7 @@ export default function App() {
             {...item}
             expanded={expandedSubscriptionId === item.id}
             onPress={() => handleSubscriptionPress(item)}
+            onCancelPress={() => handleCancel(item.id)}
           />
         )}
         extraData={expandedSubscriptionId}
