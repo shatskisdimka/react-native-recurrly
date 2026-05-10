@@ -26,7 +26,7 @@ const Settings = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-background p-5">
-      <Text className="text-3xl font-sans-bold text-primary mb-6">
+      <Text className="text-3xl font-sans-bold text-primary mb-3 px-3">
         Settings
       </Text>
 

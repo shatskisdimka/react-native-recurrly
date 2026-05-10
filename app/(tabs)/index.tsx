@@ -32,7 +32,6 @@ export default function App() {
   const { subscriptions, addSubscription } = useSubscriptionStore()
 
   const handleSubscriptionPress = (item: Subscription) => {
-    const isExpanding = expandedSubscriptionId !== item.id
     setExpandedSubscriptionId((currentId) =>
       currentId === item.id ? null : item.id,
     )
