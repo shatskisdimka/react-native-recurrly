@@ -3,14 +3,14 @@ import clsx from 'clsx'
 import dayjs from 'dayjs'
 import React, { useState } from 'react'
 import {
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    Pressable,
-    ScrollView,
-    Text,
-    TextInput,
-    View,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
 } from 'react-native'
 
 interface CreateSubscriptionModalProps {
@@ -54,7 +54,7 @@ const CreateSubscriptionModal = ({
   const [frequency, setFrequency] = useState<Frequency>('Monthly')
   const [category, setCategory] = useState<Category>('Other')
 
-  const normalizedPrice = price.trim()
+  const normalizedPrice = price.trim().replace(',', '.')
   const isValidPrice =
     /^\d+(\.\d{1,2})?$/.test(normalizedPrice) && Number(normalizedPrice) > 0
   const isValidForm = name.trim() !== '' && isValidPrice
