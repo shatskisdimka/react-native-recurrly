@@ -19,6 +19,7 @@ const SubscriptionCard = ({
   plan,
   expanded,
   onPress,
+  onCancelPress,
   paymentMethod,
   startDate,
   status,
@@ -117,6 +118,12 @@ const SubscriptionCard = ({
                 </Text>
               </View>
             </View>
+
+            {onCancelPress && (
+              <Pressable className="sub-cancel" onPress={onCancelPress}>
+                <Text className="sub-cancel-text">Cancel Subscription</Text>
+              </Pressable>
+            )}
           </View>
         </View>
       )}

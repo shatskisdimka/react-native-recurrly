@@ -67,7 +67,7 @@
   }
 
   .home-user {
-    @apply flex-row items-center;
+    @apply flex-row items-center min-w-0 flex-1;
   }
 
   .home-avatar {
@@ -75,7 +75,7 @@
   }
 
   .home-user-name {
-    @apply ml-4 text-2xl font-sans-bold text-primary;
+    @apply ml-4 text-2xl font-sans-bold text-primary flex-1;
   }
 
   .home-add-icon {

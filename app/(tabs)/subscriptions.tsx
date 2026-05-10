@@ -10,7 +10,7 @@ const SafeAreaView = styled(RNSafeAreaView)
 const Subscriptions = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedId, setExpandedId] = useState<string | null>(null)
-  const { subscriptions } = useSubscriptionStore()
+  const { subscriptions, removeSubscription } = useSubscriptionStore()
 
   const filteredSubscriptions = subscriptions.filter(
     (subscription) =>
@@ -20,6 +20,13 @@ const Subscriptions = () => {
         .includes(searchQuery.toLowerCase()) ||
       subscription.plan?.toLowerCase().includes(searchQuery.toLowerCase()),
   )
+
+  const handleCancel = (id: string) => {
+    removeSubscription(id)
+    if (expandedId === id) {
+      setExpandedId(null)
+    }
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -47,6 +54,7 @@ const Subscriptions = () => {
             onPress={() =>
               setExpandedId(expandedId === item.id ? null : item.id)
             }
+            onCancelPress={() => handleCancel(item.id)}
           />
         )}
         ListEmptyComponent={

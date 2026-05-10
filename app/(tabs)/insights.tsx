@@ -17,10 +17,13 @@ const Insights = () => {
 
   // Общие траты в месяц (Yearly делим на 12)
   const totalMonthly = useMemo(() => {
-    return subscriptions.reduce((sum, sub) => {
-      const monthly = sub.billing === 'Yearly' ? sub.price / 12 : sub.price
-      return sum + monthly
-    }, 0)
+    return subscriptions
+      .filter((sub) => sub.status === 'active')
+      .reduce((sum, sub) => {
+        const period = sub.frequency || sub.billing
+        const monthly = period === 'Yearly' ? sub.price / 12 : sub.price
+        return sum + monthly
+      }, 0)
   }, [subscriptions])
 
   // Данные для бар-чарта: суммы по дням недели на основе renewalDate
@@ -59,6 +62,10 @@ const Insights = () => {
   }, [subscriptions])
 
   const currentMonth = dayjs().format('MMMM YYYY')
+
+  const activeCount = subscriptions.filter(
+    (sub) => sub.status === 'active',
+  ).length
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -147,7 +154,7 @@ const Insights = () => {
                 -{formatCurrency(totalMonthly)}
               </Text>
               <Text className="text-sm font-sans-semibold text-accent mt-1">
-                +12%
+                {activeCount} active
               </Text>
             </View>
           </View>
