@@ -118,8 +118,7 @@ const SubscriptionCard = ({
                 </Text>
               </View>
             </View>
-
-            {onCancelPress && (
+            {onCancelPress && status !== 'cancelled' && (
               <Pressable className="sub-cancel" onPress={onCancelPress}>
                 <Text className="sub-cancel-text">Cancel Subscription</Text>
               </Pressable>
