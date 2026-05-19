@@ -1,16 +1,17 @@
 import CreateSubscriptionModal from '@/components/CreateSubscriptionModal'
 import SubscriptionCard from '@/components/SubscriptionCard'
 import UpcomingSubscriptionCard from '@/components/UpcomingSubscriptionCard'
-import { HOME_BALANCE, UPCOMING_SUBSCRIPTIONS } from '@/constants/data'
+import { HOME_BALANCE } from '@/constants/data'
 import { icons } from '@/constants/icons'
 import images from '@/constants/images'
 import '@/global.css'
+import { createSubscription, deleteSubscription, fetchSubscriptions, updateSubscription } from '@/lib/api'
 import { useSubscriptionStore } from '@/lib/subscriptionStore'
-import { useUser } from '@clerk/expo'
+import { useAuth, useUser } from '@clerk/expo'
 import dayjs from 'dayjs'
 import { styled } from 'nativewind'
-import { useState } from 'react'
-import { FlatList, Image, Pressable, Text, View } from 'react-native'
+import { useEffect, useMemo, useState } from 'react'
+import { ActivityIndicator, FlatList, Image, Pressable, Text, View } from 'react-native'
 import { SafeAreaView as RNSafeAreaView } from 'react-native-safe-area-context'
 import ListHeading from '../../components/ListHeading'
 import { formatCurrency } from '../../lib/utils'
@@ -19,6 +20,7 @@ const SafeAreaView = styled(RNSafeAreaView)
 
 export default function App() {
   const { user } = useUser()
+  const { getToken } = useAuth()
   const displayName =
     user?.firstName ||
     user?.fullName ||
@@ -29,8 +31,44 @@ export default function App() {
     string | null
   >(null)
   const [isModalVisible, setIsModalVisible] = useState(false)
-  const { subscriptions, addSubscription, removeSubscription } =
+  const [isLoading, setIsLoading] = useState(true)
+  const { subscriptions, addSubscription, removeSubscription, setSubscriptions, updateSubscription: storeUpdate } =
     useSubscriptionStore()
+
+  const upcomingSubscriptions = useMemo<UpcomingSubscription[]>(() => {
+    const now = dayjs()
+    return subscriptions
+      .filter((sub) => {
+        if (sub.status !== 'active' || !sub.renewalDate) return false
+        const daysLeft = dayjs(sub.renewalDate).diff(now, 'day')
+        return daysLeft >= 0 && daysLeft <= 7
+      })
+      .map((sub) => ({
+        id: sub.id,
+        icon_url: sub.icon_url,
+        name: sub.name,
+        price: sub.price,
+        currency: sub.currency,
+        daysLeft: dayjs(sub.renewalDate!).diff(now, 'day'),
+      }))
+      .sort((a, b) => a.daysLeft - b.daysLeft)
+  }, [subscriptions])
+
+  useEffect(() => {
+    const load = async () => {
+      const token = await getToken()
+      if (!token) return
+      try {
+        const data = await fetchSubscriptions(token)
+        setSubscriptions(data)
+      } catch (e) {
+        console.error('Failed to fetch subscriptions:', e)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    load()
+  }, [])
 
   const handleSubscriptionPress = (item: Subscription) => {
     setExpandedSubscriptionId((currentId) =>
@@ -38,14 +76,37 @@ export default function App() {
     )
   }
 
-  const handleCreateSubscription = (newSubscription: Subscription) => {
-    addSubscription(newSubscription)
+  const handleCreateSubscription = async (newSubscription: Subscription) => {
+    const token = await getToken()
+    if (!token || !user) return
+    try {
+      const saved = await createSubscription(token, newSubscription, user.id)
+      addSubscription(saved)
+    } catch (e) {
+      console.error('Failed to save subscription:', e)
+    }
   }
 
-  const handleCancel = (id: string) => {
-    removeSubscription(id)
-    if (expandedSubscriptionId === id) {
-      setExpandedSubscriptionId(null)
+  const handleUpdate = async (id: string, updates: Pick<Subscription, 'paymentMethod' | 'startDate' | 'renewalDate'>) => {
+    const token = await getToken()
+    if (!token) return
+    try {
+      await updateSubscription(token, id, updates)
+      storeUpdate(id, updates)
+    } catch (e) {
+      console.error('Failed to update subscription:', e)
+    }
+  }
+
+  const handleCancel = async (id: string) => {
+    const token = await getToken()
+    if (!token) return
+    try {
+      await deleteSubscription(token, id)
+      removeSubscription(id)
+      if (expandedSubscriptionId === id) setExpandedSubscriptionId(null)
+    } catch (e) {
+      console.error('Failed to delete subscription:', e)
     }
   }
 
@@ -94,7 +155,7 @@ export default function App() {
             <View className="mb-5">
               <ListHeading title="Upcoming" />
               <FlatList
-                data={UPCOMING_SUBSCRIPTIONS}
+                data={upcomingSubscriptions}
                 renderItem={({ item }) => (
                   <UpcomingSubscriptionCard {...item} />
                 )}
@@ -119,13 +180,16 @@ export default function App() {
             expanded={expandedSubscriptionId === item.id}
             onPress={() => handleSubscriptionPress(item)}
             onCancelPress={() => handleCancel(item.id)}
+            onUpdate={(updates) => handleUpdate(item.id, updates)}
           />
         )}
         extraData={expandedSubscriptionId}
         ItemSeparatorComponent={() => <View className="h-4"></View>}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
-          <Text className="home-empty-state">No subscriptions yet.</Text>
+          isLoading
+            ? <ActivityIndicator className="mt-6" />
+            : <Text className="home-empty-state">No subscriptions yet.</Text>
         }
         contentContainerClassName="pb-30"
       />

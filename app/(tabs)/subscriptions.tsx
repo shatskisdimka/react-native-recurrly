@@ -1,5 +1,7 @@
 import SubscriptionCard from '@/components/SubscriptionCard'
+import { deleteSubscription, updateSubscription } from '@/lib/api'
 import { useSubscriptionStore } from '@/lib/subscriptionStore'
+import { useAuth } from '@clerk/expo'
 import { styled } from 'nativewind'
 import { useState } from 'react'
 import { FlatList, Text, TextInput, View } from 'react-native'
@@ -10,7 +12,8 @@ const SafeAreaView = styled(RNSafeAreaView)
 const Subscriptions = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedId, setExpandedId] = useState<string | null>(null)
-  const { subscriptions, removeSubscription } = useSubscriptionStore()
+  const { subscriptions, removeSubscription, updateSubscription: storeUpdate } = useSubscriptionStore()
+  const { getToken } = useAuth()
 
   const filteredSubscriptions = subscriptions.filter(
     (subscription) =>
@@ -21,10 +24,26 @@ const Subscriptions = () => {
       subscription.plan?.toLowerCase().includes(searchQuery.toLowerCase()),
   )
 
-  const handleCancel = (id: string) => {
-    removeSubscription(id)
-    if (expandedId === id) {
-      setExpandedId(null)
+  const handleUpdate = async (id: string, updates: Pick<Subscription, 'paymentMethod' | 'startDate' | 'renewalDate'>) => {
+    const token = await getToken()
+    if (!token) return
+    try {
+      await updateSubscription(token, id, updates)
+      storeUpdate(id, updates)
+    } catch (e) {
+      console.error('Failed to update subscription:', e)
+    }
+  }
+
+  const handleCancel = async (id: string) => {
+    const token = await getToken()
+    if (!token) return
+    try {
+      await deleteSubscription(token, id)
+      removeSubscription(id)
+      if (expandedId === id) setExpandedId(null)
+    } catch (e) {
+      console.error('Failed to delete subscription:', e)
     }
   }
 
@@ -55,6 +74,7 @@ const Subscriptions = () => {
               setExpandedId(expandedId === item.id ? null : item.id)
             }
             onCancelPress={() => handleCancel(item.id)}
+            onUpdate={(updates) => handleUpdate(item.id, updates)}
           />
         )}
         ListEmptyComponent={

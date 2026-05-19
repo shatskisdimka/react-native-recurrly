@@ -210,8 +210,20 @@
     @apply flex-1 font-sans-bold text-primary;
   }
 
+  .sub-actions {
+    @apply mt-3 gap-1;
+  }
+
+  .sub-edit {
+    @apply items-center rounded-full border border-primary/30 py-3;
+  }
+
+  .sub-edit-text {
+    @apply font-sans-bold text-primary;
+  }
+
   .sub-cancel {
-    @apply mt-2 items-center rounded-full bg-primary py-4;
+    @apply items-center rounded-full bg-primary py-4;
   }
 
   .sub-cancel-disabled {

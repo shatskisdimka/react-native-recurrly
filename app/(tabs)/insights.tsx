@@ -173,7 +173,7 @@ const Insights = () => {
               >
                 <View className="flex-row items-center gap-3 min-w-0 flex-1">
                   <Image
-                    source={sub.icon}
+                    source={sub.icon_url ? { uri: sub.icon_url } : undefined}
                     className="size-12 rounded-lg bg-background/20"
                   />
                   <View className="min-w-0 flex-1">
