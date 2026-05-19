@@ -113,7 +113,7 @@ const SubscriptionCard = ({
                   <View className="sub-row-copy flex-1">
                     <Text className="sub-label">Payment:</Text>
                     <TextInput
-                      className="sub-value flex-1"
+                      className="sub-input"
                       value={draftPayment}
                       onChangeText={setDraftPayment}
                       placeholder="e.g. Visa ending 8530"
@@ -127,7 +127,7 @@ const SubscriptionCard = ({
                   <View className="sub-row-copy flex-1">
                     <Text className="sub-label">Started:</Text>
                     <TextInput
-                      className="sub-value flex-1"
+                      className="sub-input"
                       value={draftStartDate}
                       onChangeText={handleDateChange}
                       placeholder="mm/dd/YYYY"

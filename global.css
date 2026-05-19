@@ -210,6 +210,10 @@
     @apply flex-1 font-sans-bold text-primary;
   }
 
+  .sub-input {
+    @apply flex-1 font-sans-bold text-primary py-1;
+  }
+
   .sub-actions {
     @apply mt-3 gap-1;
   }
