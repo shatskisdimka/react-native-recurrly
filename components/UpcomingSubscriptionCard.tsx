@@ -6,13 +6,13 @@ const UpcomingSubscriptionCard = ({
   name,
   price,
   daysLeft,
-  icon,
+  icon_url,
   currency,
 }: UpcomingSubscription) => {
   return (
     <View className="upcoming-card">
       <View className="upcoming-row">
-        <Image source={icon} className="upcoming-icon" />
+        <Image source={icon_url ? { uri: icon_url } : undefined} className="upcoming-icon" />
         <View>
           <Text className="upcoming-price">
             {formatCurrency(price, currency)}

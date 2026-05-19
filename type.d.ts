@@ -14,7 +14,7 @@ declare global {
 
   interface UpcomingSubscription {
     id: string
-    icon: ImageSourcePropType
+    icon_url?: string
     name: string
     price: number
     currency?: string
@@ -28,7 +28,7 @@ declare global {
 
   interface Subscription {
     id: string
-    icon: ImageSourcePropType
+    icon_url?: string
     name: string
     plan?: string
     category?: string
@@ -43,11 +43,12 @@ declare global {
     color?: string
   }
 
-  interface SubscriptionCardProps extends Omit<Subscription, 'id'> {
+  interface SubscriptionCardProps extends Subscription {
     expanded: boolean
     onPress: () => void
     onCancelPress?: () => void
     isCancelling?: boolean
+    onUpdate?: (updates: Pick<Subscription, 'paymentMethod' | 'startDate' | 'renewalDate'>) => void
   }
 
   interface ListHeadingProps {

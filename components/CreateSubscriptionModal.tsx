@@ -1,4 +1,4 @@
-import { icons } from '@/constants/icons'
+import { getServiceIconUrl } from '@/constants/serviceIcons'
 import clsx from 'clsx'
 import dayjs from 'dayjs'
 import React, { useState } from 'react'
@@ -76,7 +76,7 @@ const CreateSubscriptionModal = ({
       status: 'active',
       startDate: now.toISOString(),
       renewalDate: renewalDate.toISOString(),
-      icon: icons.plus,
+      icon_url: getServiceIconUrl(name.trim()),
       billing: frequency,
       color: CATEGORY_COLORS[category],
     }
