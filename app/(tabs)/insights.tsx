@@ -48,6 +48,9 @@ const Insights = () => {
   }, [subscriptions])
 
   const maxAmount = Math.max(...chartData.map((d) => d.amount), 1)
+  const gridMax = Math.ceil(maxAmount / 10) * 10
+  const gridValues = [gridMax, Math.round(gridMax * 0.66), Math.round(gridMax * 0.33)]
+  const todayBar = chartData.find((d) => d.isToday && d.amount > 0)
 
   // История: сортировка по ближайшей дате renewal
   const history = useMemo(() => {
@@ -86,12 +89,21 @@ const Insights = () => {
           <ListHeading title="Upcoming" />
 
           <View className="bg-muted rounded-3xl p-5 mt-2 h-64 relative overflow-hidden">
-            {/* Сетка */}
+            {/* Подпись сегодняшней суммы — absolute, не влияет на layout баров */}
+            {todayBar && (
+              <View className="absolute top-3 right-4 bg-background rounded-lg px-2 py-1 border border-border">
+                <Text className="text-[10px] font-sans-bold text-accent">
+                  {formatCurrency(todayBar.amount)}
+                </Text>
+              </View>
+            )}
+
+            {/* Сетка с динамическими значениями */}
             <View className="absolute left-5 right-5 top-5 bottom-12 justify-between pointer-events-none">
-              {[40, 30, 20, 10].map((val) => (
+              {gridValues.map((val) => (
                 <View key={val} className="flex-row items-center">
-                  <Text className="text-[10px] font-sans-medium text-muted-foreground w-5">
-                    {val}
+                  <Text className="text-[10px] font-sans-medium text-muted-foreground w-10">
+                    ${val}
                   </Text>
                   <View className="flex-1 h-px bg-border/60" />
                 </View>
@@ -99,9 +111,9 @@ const Insights = () => {
             </View>
 
             {/* Столбцы */}
-            <View className="flex-row items-end justify-between h-full pb-6 pl-7">
+            <View className="flex-row items-end justify-between h-full pb-6 pl-11">
               {chartData.map((item) => {
-                const heightPercent = (item.amount / maxAmount) * 75
+                const heightPercent = (item.amount / gridMax) * 62
                 const isHighlighted = item.isToday
 
                 return (
@@ -109,13 +121,6 @@ const Insights = () => {
                     key={item.day}
                     className="flex-1 items-center justify-end"
                   >
-                    {isHighlighted && item.amount > 0 && (
-                      <View className="mb-2 bg-background rounded-lg px-2 py-1 border border-border shadow-sm">
-                        <Text className="text-[10px] font-sans-bold text-accent">
-                          {formatCurrency(item.amount)}
-                        </Text>
-                      </View>
-                    )}
                     <View
                       className={clsx(
                         'w-3.5 rounded-full',
