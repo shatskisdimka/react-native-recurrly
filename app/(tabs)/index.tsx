@@ -1,7 +1,6 @@
 import CreateSubscriptionModal from '@/components/CreateSubscriptionModal'
 import SubscriptionCard from '@/components/SubscriptionCard'
 import UpcomingSubscriptionCard from '@/components/UpcomingSubscriptionCard'
-import { HOME_BALANCE } from '@/constants/data'
 import { icons } from '@/constants/icons'
 import images from '@/constants/images'
 import '@/global.css'
@@ -35,6 +34,24 @@ export default function App() {
   const { subscriptions, addSubscription, removeSubscription, setSubscriptions, updateSubscription: storeUpdate } =
     useSubscriptionStore()
 
+  const totalMonthly = useMemo(() => {
+    return subscriptions
+      .filter((sub) => sub.status === 'active')
+      .reduce((sum, sub) => {
+        const period = sub.frequency || sub.billing
+        const monthly = period?.toLowerCase() === 'yearly' ? sub.price / 12 : sub.price
+        return sum + monthly
+      }, 0)
+  }, [subscriptions])
+
+  const nextRenewalDate = useMemo(() => {
+    const dates = subscriptions
+      .filter((sub) => sub.status === 'active' && sub.renewalDate)
+      .map((sub) => sub.renewalDate!)
+      .sort()
+    return dates[0] ?? null
+  }, [subscriptions])
+
   const upcomingSubscriptions = useMemo<UpcomingSubscription[]>(() => {
     const now = dayjs()
     return subscriptions
@@ -59,7 +76,28 @@ export default function App() {
       const token = await getToken()
       if (!token) return
       try {
-        const data = await fetchSubscriptions(token)
+        let data = await fetchSubscriptions(token)
+
+        const now = dayjs()
+        const renewals = data
+          .filter((sub) => sub.status === 'active' && sub.renewalDate && dayjs(sub.renewalDate).isBefore(now))
+          .map((sub) => {
+            let next = dayjs(sub.renewalDate!)
+            const unit = (sub.frequency || sub.billing)?.toLowerCase() === 'yearly' ? 'year' : 'month'
+            while (next.isBefore(now)) next = next.add(1, unit as 'year' | 'month')
+            return { id: sub.id, renewalDate: next.toISOString() }
+          })
+
+        if (renewals.length > 0) {
+          await Promise.all(
+            renewals.map(({ id, renewalDate }) => updateSubscription(token, id, { renewalDate }))
+          )
+          data = data.map((sub) => {
+            const r = renewals.find((r) => r.id === sub.id)
+            return r ? { ...sub, renewalDate: r.renewalDate } : sub
+          })
+        }
+
         setSubscriptions(data)
       } catch (e) {
         console.error('Failed to fetch subscriptions:', e)
@@ -141,13 +179,13 @@ export default function App() {
             </View>
 
             <View className="home-balance-card">
-              <Text className="home-balance-label">Balance</Text>
+              <Text className="home-balance-label">Monthly spend</Text>
               <View className="home-balance-row">
                 <Text className="home-balance-amount">
-                  {formatCurrency(HOME_BALANCE.amount)}
+                  {formatCurrency(totalMonthly)}
                 </Text>
                 <Text className="home-balance-date">
-                  {dayjs(HOME_BALANCE.nextRenewalDate).format('MM/DD')}
+                  {nextRenewalDate ? dayjs(nextRenewalDate).format('MM/DD') : '—'}
                 </Text>
               </View>
             </View>
