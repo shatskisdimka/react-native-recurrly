@@ -7,7 +7,8 @@ import {
 import clsx from 'clsx'
 import dayjs from 'dayjs'
 import React, { useEffect, useState } from 'react'
-import { Alert, Image, Pressable, Text, TextInput, View } from 'react-native'
+import { Alert, Pressable, Text, TextInput, View } from 'react-native'
+import SubscriptionIcon from '@/components/SubscriptionIcon'
 
 const parseMMDDYYYY = (text: string): dayjs.Dayjs | null => {
   if (text.length !== 10) return null
@@ -86,7 +87,7 @@ const SubscriptionCard = ({
     >
       <View className="sub-head">
         <View className="sub-main">
-          <Image source={icon_url ? { uri: icon_url } : undefined} className="sub-icon" />
+          <SubscriptionIcon icon_url={icon_url} name={name} className="sub-icon" textClassName="text-3xl font-sans-bold text-primary/50" />
           <View className="sub-copy">
             <Text className="sub-title" numberOfLines={1}>
               {name}

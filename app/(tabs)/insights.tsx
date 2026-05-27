@@ -1,5 +1,6 @@
 import HistorySheet from '@/components/HistorySheet'
 import ListHeading from '@/components/ListHeading'
+import SubscriptionIcon from '@/components/SubscriptionIcon'
 import { useSubscriptions } from '@/lib/useSubscriptions'
 import { formatBillingPeriod, formatCurrency, getMonthlyPrice } from '@/lib/utils'
 import clsx from 'clsx'
@@ -155,10 +156,7 @@ const Insights = () => {
                 style={{ backgroundColor: sub.color || '#f6eecf' }}
               >
                 <View className="flex-row items-center gap-3 min-w-0 flex-1">
-                  <Image
-                    source={sub.icon_url ? { uri: sub.icon_url } : undefined}
-                    className="size-12 rounded-lg bg-background/20"
-                  />
+                  <SubscriptionIcon icon_url={sub.icon_url} name={sub.name} className="size-12 rounded-lg" />
                   <View className="min-w-0 flex-1">
                     <Text className="text-base font-sans-bold text-primary" numberOfLines={1}>
                       {sub.name}

@@ -4,7 +4,8 @@ import clsx from 'clsx'
 import dayjs from 'dayjs'
 import { styled } from 'nativewind'
 import { useEffect, useRef } from 'react'
-import { Alert, Image, Modal, PanResponder, Pressable, ScrollView, Text, View } from 'react-native'
+import { Alert, Modal, PanResponder, Pressable, ScrollView, Text, View } from 'react-native'
+import SubscriptionIcon from '@/components/SubscriptionIcon'
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -12,7 +13,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated'
 
-const AnimatedSheet = styled(Animated.View)
+const AnimatedView = styled(Animated.View)
 
 interface HistorySheetProps {
   visible: boolean
@@ -24,6 +25,7 @@ const CLOSE_DURATION = 280
 
 export default function HistorySheet({ visible, onClose }: HistorySheetProps) {
   const translateY = useSharedValue(600)
+  const backdropOpacity = useSharedValue(0)
   const { history, isLoading, refetch, clear, isClearing } = useHistory()
 
   const onCloseRef = useRef(onClose)
@@ -33,12 +35,14 @@ export default function HistorySheet({ visible, onClose }: HistorySheetProps) {
     if (visible) {
       translateY.value = 600
       translateY.value = withSpring(0, SPRING)
+      backdropOpacity.value = withTiming(1, { duration: 200 })
       refetch()
     }
   }, [visible])
 
   const animateClose = () => {
     translateY.value = withTiming(600, { duration: CLOSE_DURATION })
+    backdropOpacity.value = withTiming(0, { duration: CLOSE_DURATION })
     setTimeout(() => onCloseRef.current(), CLOSE_DURATION)
   }
 
@@ -65,6 +69,10 @@ export default function HistorySheet({ visible, onClose }: HistorySheetProps) {
     transform: [{ translateY: translateY.value }],
   }))
 
+  const backdropStyle = useAnimatedStyle(() => ({
+    opacity: backdropOpacity.value,
+  }))
+
   const handleClear = () => {
     Alert.alert('Clear History', 'Are you sure you want to remove all cancelled subscriptions?', [
       { text: 'No', style: 'cancel' },
@@ -75,11 +83,18 @@ export default function HistorySheet({ visible, onClose }: HistorySheetProps) {
   return (
     <Modal transparent animationType="none" visible={visible} onRequestClose={animateClose}>
       <View className="flex-1 justify-end">
-        {/* Tap-to-close backdrop, sits behind the sheet */}
+        {/* Backdrop fades in/out with the sheet */}
+        <Animated.View
+          style={[
+            { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)' },
+            backdropStyle,
+          ]}
+          pointerEvents="box-none"
+        />
         <Pressable className="absolute inset-0" onPress={animateClose} />
 
         {/* Sheet — style prop only for the Reanimated translateY */}
-        <AnimatedSheet
+        <AnimatedView
           className="rounded-t-3xl bg-background overflow-hidden max-h-[80%]"
           style={sheetStyle}
         >
@@ -127,10 +142,7 @@ export default function HistorySheet({ visible, onClose }: HistorySheetProps) {
                 className="flex-row items-center gap-3 p-4 rounded-2xl"
                 style={{ backgroundColor: sub.color || '#f6eecf' }}
               >
-                <Image
-                  source={sub.icon_url ? { uri: sub.icon_url } : undefined}
-                  className="w-12 h-12 rounded-lg bg-white/30"
-                />
+                <SubscriptionIcon icon_url={sub.icon_url} name={sub.name} className="w-12 h-12 rounded-lg" />
                 <View className="flex-1 min-w-0">
                   <Text className="text-base font-sans-bold text-primary" numberOfLines={1}>
                     {sub.name}
@@ -152,7 +164,7 @@ export default function HistorySheet({ visible, onClose }: HistorySheetProps) {
               </View>
             ))}
           </ScrollView>
-        </AnimatedSheet>
+        </AnimatedView>
       </View>
     </Modal>
   )
