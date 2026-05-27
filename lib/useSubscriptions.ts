@@ -19,8 +19,9 @@ export function useSubscriptions() {
       let data = await fetchSubscriptions(token)
 
       const now = dayjs()
+      const today = now.startOf('day')
       const renewals = data
-        .filter((sub) => sub.status === 'active' && sub.renewalDate && dayjs(sub.renewalDate).isBefore(now))
+        .filter((sub) => sub.status === 'active' && sub.renewalDate && dayjs(sub.renewalDate).isBefore(today))
         .map((sub) => {
           let next = dayjs(sub.renewalDate!)
           const unit = (sub.frequency || sub.billing)?.toLowerCase() === 'yearly' ? 'year' : 'month'
@@ -64,7 +65,18 @@ export function useSubscriptions() {
       if (!token) throw new Error('Not authenticated')
       return updateSubscription(token, id, updates)
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: SUBSCRIPTIONS_KEY }),
+    onMutate: async ({ id, updates }) => {
+      await queryClient.cancelQueries({ queryKey: SUBSCRIPTIONS_KEY })
+      const previous = queryClient.getQueryData<Subscription[]>(SUBSCRIPTIONS_KEY)
+      queryClient.setQueryData<Subscription[]>(SUBSCRIPTIONS_KEY, (old) =>
+        old?.map((sub) => (sub.id === id ? { ...sub, ...updates } : sub)) ?? []
+      )
+      return { previous }
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(SUBSCRIPTIONS_KEY, context.previous)
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: SUBSCRIPTIONS_KEY }),
   })
 
   const cancelMutation = useMutation({
@@ -73,7 +85,18 @@ export function useSubscriptions() {
       if (!token) throw new Error('Not authenticated')
       return cancelSubscription(token, id)
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: SUBSCRIPTIONS_KEY }),
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: SUBSCRIPTIONS_KEY })
+      const previous = queryClient.getQueryData<Subscription[]>(SUBSCRIPTIONS_KEY)
+      queryClient.setQueryData<Subscription[]>(SUBSCRIPTIONS_KEY, (old) =>
+        old?.filter((sub) => sub.id !== id) ?? []
+      )
+      return { previous }
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(SUBSCRIPTIONS_KEY, context.previous)
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: SUBSCRIPTIONS_KEY }),
   })
 
   return {
