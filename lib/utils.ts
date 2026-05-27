@@ -32,3 +32,6 @@ export const getMonthlyPrice = (sub: Pick<Subscription, 'price' | 'billing' | 'f
   const period = sub.frequency || sub.billing
   return period?.toLowerCase() === 'yearly' ? sub.price / 12 : sub.price
 }
+
+export const formatBillingPeriod = (billing?: string): string =>
+  billing?.toLowerCase() === 'yearly' ? 'per year' : 'per month'

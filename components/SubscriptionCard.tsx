@@ -1,4 +1,5 @@
 import {
+  formatBillingPeriod,
   formatCurrency,
   formatStatusLabel,
   formatSubscriptionDateTime,
@@ -100,7 +101,7 @@ const SubscriptionCard = ({
 
         <View className="sub-price-box">
           <Text className="sub-price">{formatCurrency(price, currency)}</Text>
-          <Text className="sub-billing">{billing}</Text>
+          <Text className="sub-billing">{formatBillingPeriod(billing)}</Text>
         </View>
       </View>
 
