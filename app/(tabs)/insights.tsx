@@ -7,7 +7,7 @@ import clsx from 'clsx'
 import dayjs from 'dayjs'
 import { styled } from 'nativewind'
 import { useMemo, useState } from 'react'
-import { Image, ScrollView, Text, View } from 'react-native'
+import { ScrollView, Text, View } from 'react-native'
 import { SafeAreaView as RNSafeAreaView } from 'react-native-safe-area-context'
 
 const SafeAreaView = styled(RNSafeAreaView)
@@ -64,7 +64,7 @@ const Insights = () => {
   const activeCount = subscriptions.filter((sub) => sub.status === 'active').length
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-background pb-5">
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}

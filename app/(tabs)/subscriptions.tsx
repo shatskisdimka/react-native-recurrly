@@ -40,12 +40,12 @@ const Subscriptions = () => {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-background p-5">
       <FlatList
         data={filteredSubscriptions}
         keyExtractor={(item) => item.id}
         ListHeaderComponent={
-          <View className="px-5 pt-5">
+          <View className="pt-0">
             <Text className="text-3xl font-bold text-primary mb-5">Subscriptions</Text>
             <TextInput
               className="bg-card rounded-xl px-4 py-3 text-dark mb-4"
@@ -70,7 +70,7 @@ const Subscriptions = () => {
             {searchQuery.trim() ? 'No subscriptions match your search.' : 'No subscriptions yet.'}
           </Text>
         }
-        contentContainerClassName="pb-30 px-5"
+        contentContainerClassName="pb-30"
         ItemSeparatorComponent={() => <View className="h-3" />}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
