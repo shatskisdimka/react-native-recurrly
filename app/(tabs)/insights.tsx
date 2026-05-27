@@ -1,7 +1,7 @@
 import HistorySheet from '@/components/HistorySheet'
 import ListHeading from '@/components/ListHeading'
 import { useSubscriptions } from '@/lib/useSubscriptions'
-import { formatCurrency, getMonthlyPrice } from '@/lib/utils'
+import { formatBillingPeriod, formatCurrency, getMonthlyPrice } from '@/lib/utils'
 import clsx from 'clsx'
 import dayjs from 'dayjs'
 import { styled } from 'nativewind'
@@ -165,7 +165,7 @@ const Insights = () => {
                     </Text>
                     <Text className="text-xs font-sans-medium text-primary/70 mt-1">
                       {sub.renewalDate
-                        ? dayjs(sub.renewalDate).format('MMMM D, HH:mm')
+                        ? `Renews ${dayjs(sub.renewalDate).format('MMMM D')}`
                         : 'No date'}
                     </Text>
                   </View>
@@ -175,7 +175,7 @@ const Insights = () => {
                     {formatCurrency(sub.price, sub.currency)}
                   </Text>
                   <Text className="text-xs font-sans-medium text-primary/70 mt-1">
-                    per {sub.billing?.toLowerCase() || 'month'}
+                    {formatBillingPeriod(sub.billing)}
                   </Text>
                 </View>
               </View>
