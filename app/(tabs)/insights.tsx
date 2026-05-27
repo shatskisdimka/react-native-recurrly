@@ -165,7 +165,7 @@ const Insights = () => {
                     </Text>
                     <Text className="text-xs font-sans-medium text-primary/70 mt-1">
                       {sub.renewalDate
-                        ? dayjs(sub.renewalDate).format('MMMM D, HH:mm')
+                        ? `Renews ${dayjs(sub.renewalDate).format('MMMM D')}`
                         : 'No date'}
                     </Text>
                   </View>
