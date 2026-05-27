@@ -1,10 +1,11 @@
+import HistorySheet from '@/components/HistorySheet'
 import ListHeading from '@/components/ListHeading'
-import { useSubscriptionStore } from '@/lib/subscriptionStore'
+import { useSubscriptions } from '@/lib/useSubscriptions'
 import { formatCurrency, getMonthlyPrice } from '@/lib/utils'
 import clsx from 'clsx'
 import dayjs from 'dayjs'
 import { styled } from 'nativewind'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Image, ScrollView, Text, View } from 'react-native'
 import { SafeAreaView as RNSafeAreaView } from 'react-native-safe-area-context'
 
@@ -13,7 +14,8 @@ const SafeAreaView = styled(RNSafeAreaView)
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 const Insights = () => {
-  const { subscriptions } = useSubscriptionStore()
+  const { subscriptions } = useSubscriptions()
+  const [historyVisible, setHistoryVisible] = useState(false)
 
   const totalMonthly = useMemo(() => {
     return subscriptions
@@ -21,7 +23,6 @@ const Insights = () => {
       .reduce((sum, sub) => sum + getMonthlyPrice(sub), 0)
   }, [subscriptions])
 
-  // Данные для бар-чарта: суммы по дням недели на основе renewalDate
   const chartData = useMemo(() => {
     const data = DAYS.map((day) => ({ day, amount: 0 }))
 
@@ -29,8 +30,8 @@ const Insights = () => {
       const dateStr = sub.renewalDate || sub.startDate
       if (!dateStr) return
 
-      const dayOfWeek = dayjs(dateStr).day() // 0=Вс, 1=Пн...
-      const dayIndex = dayOfWeek === 0 ? 6 : dayOfWeek - 1 // Пн=0, Вс=6
+      const dayOfWeek = dayjs(dateStr).day()
+      const dayIndex = dayOfWeek === 0 ? 6 : dayOfWeek - 1
 
       data[dayIndex].amount += getMonthlyPrice(sub)
     })
@@ -46,7 +47,6 @@ const Insights = () => {
   const gridValues = [gridMax, Math.round(gridMax * 0.66), Math.round(gridMax * 0.33)]
   const todayBar = chartData.find((d) => d.isToday && d.amount > 0)
 
-  // История: сортировка по ближайшей дате renewal
   const history = useMemo(() => {
     return [...subscriptions].sort((a, b) => {
       const dateA = a.renewalDate || a.startDate || ''
@@ -60,9 +60,7 @@ const Insights = () => {
 
   const currentMonth = dayjs().format('MMMM YYYY')
 
-  const activeCount = subscriptions.filter(
-    (sub) => sub.status === 'active',
-  ).length
+  const activeCount = subscriptions.filter((sub) => sub.status === 'active').length
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -71,19 +69,14 @@ const Insights = () => {
         showsVerticalScrollIndicator={false}
         contentContainerClassName="pb-30"
       >
-        {/* Заголовок */}
         <View className="items-center pt-5 pb-2">
-          <Text className="text-3xl font-sans-bold text-dark mb-0">
-            Monthly Insights
-          </Text>
+          <Text className="text-3xl font-sans-bold text-dark mb-0">Monthly Insights</Text>
         </View>
 
-        {/* Upcoming + Бар-чарт */}
         <View className="px-5 mt-4">
           <ListHeading title="Upcoming" />
 
           <View className="bg-muted rounded-3xl p-5 mt-2 h-64 relative overflow-hidden">
-            {/* Подпись сегодняшней суммы — absolute, не влияет на layout баров */}
             {todayBar && (
               <View className="absolute top-3 right-4 bg-background rounded-lg px-2 py-1 border border-border">
                 <Text className="text-[10px] font-sans-bold text-accent">
@@ -92,7 +85,6 @@ const Insights = () => {
               </View>
             )}
 
-            {/* Сетка с динамическими значениями */}
             <View className="absolute left-5 right-5 top-5 bottom-12 justify-between pointer-events-none">
               {gridValues.map((val) => (
                 <View key={val} className="flex-row items-center">
@@ -104,17 +96,13 @@ const Insights = () => {
               ))}
             </View>
 
-            {/* Столбцы */}
             <View className="flex-row items-end justify-between h-full pb-6 pl-11">
               {chartData.map((item) => {
                 const heightPercent = (item.amount / gridMax) * 62
                 const isHighlighted = item.isToday
 
                 return (
-                  <View
-                    key={item.day}
-                    className="flex-1 items-center justify-end"
-                  >
+                  <View key={item.day} className="flex-1 items-center justify-end">
                     <View
                       className={clsx(
                         'w-3.5 rounded-full',
@@ -137,13 +125,10 @@ const Insights = () => {
           </View>
         </View>
 
-        {/* Expenses */}
         <View className="px-5 mt-5">
           <View className="auth-card flex-row items-center justify-between">
             <View>
-              <Text className="text-lg font-sans-bold text-primary">
-                Expenses
-              </Text>
+              <Text className="text-lg font-sans-bold text-primary">Expenses</Text>
               <Text className="text-sm font-sans-medium text-muted-foreground mt-1">
                 {currentMonth}
               </Text>
@@ -159,9 +144,8 @@ const Insights = () => {
           </View>
         </View>
 
-        {/* History */}
         <View className="px-5 mt-6">
-          <ListHeading title="History" />
+          <ListHeading title="History" onViewAll={() => setHistoryVisible(true)} />
 
           <View className="mt-2 gap-3">
             {history.map((sub) => (
@@ -176,10 +160,7 @@ const Insights = () => {
                     className="size-12 rounded-lg bg-background/20"
                   />
                   <View className="min-w-0 flex-1">
-                    <Text
-                      className="text-base font-sans-bold text-primary"
-                      numberOfLines={1}
-                    >
+                    <Text className="text-base font-sans-bold text-primary" numberOfLines={1}>
                       {sub.name}
                     </Text>
                     <Text className="text-xs font-sans-medium text-primary/70 mt-1">
@@ -201,13 +182,13 @@ const Insights = () => {
             ))}
 
             {history.length === 0 && (
-              <Text className="home-empty-state text-center">
-                No subscription history yet.
-              </Text>
+              <Text className="home-empty-state text-center">No subscription history yet.</Text>
             )}
           </View>
         </View>
       </ScrollView>
+
+      <HistorySheet visible={historyVisible} onClose={() => setHistoryVisible(false)} />
     </SafeAreaView>
   )
 }
