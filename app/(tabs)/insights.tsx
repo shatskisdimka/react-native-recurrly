@@ -7,16 +7,17 @@ import clsx from 'clsx'
 import dayjs from 'dayjs'
 import { styled } from 'nativewind'
 import { useMemo, useState } from 'react'
-import { ScrollView, Text, View } from 'react-native'
+import { Pressable, ScrollView, Text, View } from 'react-native'
 import { SafeAreaView as RNSafeAreaView } from 'react-native-safe-area-context'
 
 const SafeAreaView = styled(RNSafeAreaView)
 
-const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+const WEEKS = ['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4'] as const
 
 const Insights = () => {
   const { subscriptions } = useSubscriptions()
   const [historyVisible, setHistoryVisible] = useState(false)
+  const [selectedWeek, setSelectedWeek] = useState<number | null>(null)
 
   const totalMonthly = useMemo(() => {
     return subscriptions
@@ -25,28 +26,23 @@ const Insights = () => {
   }, [subscriptions])
 
   const chartData = useMemo(() => {
-    const data = DAYS.map((day) => ({ day, amount: 0 }))
+    const data = WEEKS.map((label) => ({ label, amount: 0 }))
 
     subscriptions.forEach((sub) => {
       const dateStr = sub.renewalDate || sub.startDate
       if (!dateStr) return
-
-      const dayOfWeek = dayjs(dateStr).day()
-      const dayIndex = dayOfWeek === 0 ? 6 : dayOfWeek - 1
-
-      data[dayIndex].amount += getMonthlyPrice(sub)
+      const dayOfMonth = dayjs(dateStr).date()
+      const weekIndex = Math.min(Math.floor((dayOfMonth - 1) / 7), 3)
+      data[weekIndex].amount += getMonthlyPrice(sub)
     })
 
-    const today = dayjs().day()
-    const todayIndex = today === 0 ? 6 : today - 1
-
-    return data.map((d, i) => ({ ...d, isToday: i === todayIndex }))
+    return data
   }, [subscriptions])
 
   const maxAmount = Math.max(...chartData.map((d) => d.amount), 1)
   const gridMax = Math.ceil(maxAmount / 10) * 10
   const gridValues = [gridMax, Math.round(gridMax * 0.66), Math.round(gridMax * 0.33)]
-  const todayBar = chartData.find((d) => d.isToday && d.amount > 0)
+  const selectedAmount = selectedWeek !== null ? chartData[selectedWeek].amount : null
 
   const history = useMemo(() => {
     return [...subscriptions].sort((a, b) => {
@@ -78,10 +74,10 @@ const Insights = () => {
           <ListHeading title="Upcoming" />
 
           <View className="bg-muted rounded-3xl p-5 mt-2 h-64 relative overflow-hidden">
-            {todayBar && (
+            {selectedAmount !== null && (
               <View className="absolute top-3 right-4 bg-background rounded-lg px-2 py-1 border border-border">
                 <Text className="text-[10px] font-sans-bold text-accent">
-                  {formatCurrency(todayBar.amount)}
+                  {formatCurrency(selectedAmount)}
                 </Text>
               </View>
             )}
@@ -98,28 +94,32 @@ const Insights = () => {
             </View>
 
             <View className="flex-row items-end justify-between h-full pb-6 pl-11">
-              {chartData.map((item) => {
+              {chartData.map((item, index) => {
                 const heightPercent = (item.amount / gridMax) * 62
-                const isHighlighted = item.isToday
+                const isSelected = index === selectedWeek
 
                 return (
-                  <View key={item.day} className="flex-1 items-center justify-end">
+                  <Pressable
+                    key={item.label}
+                    className="flex-1 items-center justify-end"
+                    onPress={() => setSelectedWeek(isSelected ? null : index)}
+                  >
                     <View
                       className={clsx(
-                        'w-3.5 rounded-full',
-                        isHighlighted ? 'bg-accent' : 'bg-primary',
+                        'w-5 rounded-full',
+                        isSelected ? 'bg-accent' : 'bg-primary',
                       )}
                       style={{ height: `${Math.max(heightPercent, 4)}%` }}
                     />
                     <Text
                       className={clsx(
                         'text-xs mt-2 font-sans-medium',
-                        isHighlighted ? 'text-accent' : 'text-muted-foreground',
+                        isSelected ? 'text-accent' : 'text-muted-foreground',
                       )}
                     >
-                      {item.day}
+                      {item.label}
                     </Text>
-                  </View>
+                  </Pressable>
                 )
               })}
             </View>
