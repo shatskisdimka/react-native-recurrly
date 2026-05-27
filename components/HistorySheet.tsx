@@ -4,7 +4,7 @@ import clsx from 'clsx'
 import dayjs from 'dayjs'
 import { styled } from 'nativewind'
 import { useEffect, useRef } from 'react'
-import { Alert, Modal, PanResponder, Pressable, ScrollView, Text, View } from 'react-native'
+import { Alert, Modal, PanResponder, Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native'
 import SubscriptionIcon from '@/components/SubscriptionIcon'
 import Animated, {
   useAnimatedStyle,
@@ -20,11 +20,12 @@ interface HistorySheetProps {
   onClose: () => void
 }
 
-const SPRING = { damping: 22, stiffness: 220 } as const
-const CLOSE_DURATION = 280
+const SPRING = { damping: 50, stiffness: 400 } as const
+const CLOSE_DURATION = 200
 
 export default function HistorySheet({ visible, onClose }: HistorySheetProps) {
-  const translateY = useSharedValue(600)
+  const { height } = useWindowDimensions()
+  const translateY = useSharedValue(height)
   const backdropOpacity = useSharedValue(0)
   const { history, isLoading, refetch, clear, isClearing } = useHistory()
 
@@ -33,7 +34,7 @@ export default function HistorySheet({ visible, onClose }: HistorySheetProps) {
 
   useEffect(() => {
     if (visible) {
-      translateY.value = 600
+      translateY.value = height
       translateY.value = withSpring(0, SPRING)
       backdropOpacity.value = withTiming(1, { duration: 200 })
       refetch()
@@ -41,7 +42,7 @@ export default function HistorySheet({ visible, onClose }: HistorySheetProps) {
   }, [visible])
 
   const animateClose = () => {
-    translateY.value = withTiming(600, { duration: CLOSE_DURATION })
+    translateY.value = withTiming(height, { duration: CLOSE_DURATION })
     backdropOpacity.value = withTiming(0, { duration: CLOSE_DURATION })
     setTimeout(() => onCloseRef.current(), CLOSE_DURATION)
   }
