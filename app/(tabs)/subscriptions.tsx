@@ -1,7 +1,5 @@
 import SubscriptionCard from '@/components/SubscriptionCard'
-import { deleteSubscription, updateSubscription } from '@/lib/api'
-import { useSubscriptionStore } from '@/lib/subscriptionStore'
-import { useAuth } from '@clerk/expo'
+import { useSubscriptions } from '@/lib/useSubscriptions'
 import { styled } from 'nativewind'
 import { useState } from 'react'
 import { FlatList, Text, TextInput, View } from 'react-native'
@@ -12,38 +10,32 @@ const SafeAreaView = styled(RNSafeAreaView)
 const Subscriptions = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedId, setExpandedId] = useState<string | null>(null)
-  const { subscriptions, removeSubscription, updateSubscription: storeUpdate } = useSubscriptionStore()
-  const { getToken } = useAuth()
+  const { subscriptions, update, cancel } = useSubscriptions()
 
   const filteredSubscriptions = subscriptions.filter(
     (subscription) =>
       subscription.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      subscription.category
-        ?.toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
+      subscription.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       subscription.plan?.toLowerCase().includes(searchQuery.toLowerCase()),
   )
 
-  const handleUpdate = async (id: string, updates: Pick<Subscription, 'paymentMethod' | 'startDate' | 'renewalDate'>) => {
-    const token = await getToken()
-    if (!token) return
+  const handleUpdate = async (
+    id: string,
+    updates: Pick<Subscription, 'paymentMethod' | 'startDate' | 'renewalDate'>,
+  ) => {
     try {
-      await updateSubscription(token, id, updates)
-      storeUpdate(id, updates)
+      await update(id, updates)
     } catch (e) {
       console.error('Failed to update subscription:', e)
     }
   }
 
   const handleCancel = async (id: string) => {
-    const token = await getToken()
-    if (!token) return
     try {
-      await deleteSubscription(token, id)
-      removeSubscription(id)
+      await cancel(id)
       if (expandedId === id) setExpandedId(null)
     } catch (e) {
-      console.error('Failed to delete subscription:', e)
+      console.error('Failed to cancel subscription:', e)
     }
   }
 
@@ -54,9 +46,7 @@ const Subscriptions = () => {
         keyExtractor={(item) => item.id}
         ListHeaderComponent={
           <View className="px-5 pt-5">
-            <Text className="text-3xl font-bold text-primary mb-5">
-              Subscriptions
-            </Text>
+            <Text className="text-3xl font-bold text-primary mb-5">Subscriptions</Text>
             <TextInput
               className="bg-card rounded-xl px-4 py-3 text-dark mb-4"
               placeholder="Search subscriptions..."
@@ -70,18 +60,14 @@ const Subscriptions = () => {
           <SubscriptionCard
             {...item}
             expanded={expandedId === item.id}
-            onPress={() =>
-              setExpandedId(expandedId === item.id ? null : item.id)
-            }
+            onPress={() => setExpandedId(expandedId === item.id ? null : item.id)}
             onCancelPress={() => handleCancel(item.id)}
             onUpdate={(updates) => handleUpdate(item.id, updates)}
           />
         )}
         ListEmptyComponent={
           <Text className="text-center text-dark/60 mt-6">
-            {searchQuery.trim()
-              ? 'No subscriptions match your search.'
-              : 'No subscriptions yet.'}
+            {searchQuery.trim() ? 'No subscriptions match your search.' : 'No subscriptions yet.'}
           </Text>
         }
         contentContainerClassName="pb-30 px-5"
