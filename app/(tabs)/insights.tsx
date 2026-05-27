@@ -1,12 +1,13 @@
 import HistorySheet from '@/components/HistorySheet'
 import ListHeading from '@/components/ListHeading'
+import SubscriptionIcon from '@/components/SubscriptionIcon'
 import { useSubscriptions } from '@/lib/useSubscriptions'
 import { formatBillingPeriod, formatCurrency, getMonthlyPrice } from '@/lib/utils'
 import clsx from 'clsx'
 import dayjs from 'dayjs'
 import { styled } from 'nativewind'
 import { useMemo, useState } from 'react'
-import { Image, ScrollView, Text, View } from 'react-native'
+import { ScrollView, Text, View } from 'react-native'
 import { SafeAreaView as RNSafeAreaView } from 'react-native-safe-area-context'
 
 const SafeAreaView = styled(RNSafeAreaView)
@@ -63,7 +64,7 @@ const Insights = () => {
   const activeCount = subscriptions.filter((sub) => sub.status === 'active').length
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-background pb-5">
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
@@ -155,10 +156,7 @@ const Insights = () => {
                 style={{ backgroundColor: sub.color || '#f6eecf' }}
               >
                 <View className="flex-row items-center gap-3 min-w-0 flex-1">
-                  <Image
-                    source={sub.icon_url ? { uri: sub.icon_url } : undefined}
-                    className="size-12 rounded-lg bg-background/20"
-                  />
+                  <SubscriptionIcon icon_url={sub.icon_url} name={sub.name} className="size-12 rounded-lg" />
                   <View className="min-w-0 flex-1">
                     <Text className="text-base font-sans-bold text-primary" numberOfLines={1}>
                       {sub.name}
