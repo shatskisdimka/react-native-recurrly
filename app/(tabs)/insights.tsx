@@ -1,6 +1,6 @@
 import ListHeading from '@/components/ListHeading'
 import { useSubscriptionStore } from '@/lib/subscriptionStore'
-import { formatCurrency } from '@/lib/utils'
+import { formatCurrency, getMonthlyPrice } from '@/lib/utils'
 import clsx from 'clsx'
 import dayjs from 'dayjs'
 import { styled } from 'nativewind'
@@ -15,15 +15,10 @@ const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 const Insights = () => {
   const { subscriptions } = useSubscriptionStore()
 
-  // Общие траты в месяц (Yearly делим на 12)
   const totalMonthly = useMemo(() => {
     return subscriptions
       .filter((sub) => sub.status === 'active')
-      .reduce((sum, sub) => {
-        const period = sub.frequency || sub.billing
-        const monthly = period === 'Yearly' ? sub.price / 12 : sub.price
-        return sum + monthly
-      }, 0)
+      .reduce((sum, sub) => sum + getMonthlyPrice(sub), 0)
   }, [subscriptions])
 
   // Данные для бар-чарта: суммы по дням недели на основе renewalDate
@@ -37,8 +32,7 @@ const Insights = () => {
       const dayOfWeek = dayjs(dateStr).day() // 0=Вс, 1=Пн...
       const dayIndex = dayOfWeek === 0 ? 6 : dayOfWeek - 1 // Пн=0, Вс=6
 
-      const monthly = sub.billing === 'Yearly' ? sub.price / 12 : sub.price
-      data[dayIndex].amount += monthly
+      data[dayIndex].amount += getMonthlyPrice(sub)
     })
 
     const today = dayjs().day()

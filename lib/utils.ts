@@ -27,3 +27,8 @@ export const formatStatusLabel = (value?: string): string => {
   if (!value) return 'Unknown'
   return value.charAt(0).toUpperCase() + value.slice(1)
 }
+
+export const getMonthlyPrice = (sub: Pick<Subscription, 'price' | 'billing' | 'frequency'>): number => {
+  const period = sub.frequency || sub.billing
+  return period?.toLowerCase() === 'yearly' ? sub.price / 12 : sub.price
+}
