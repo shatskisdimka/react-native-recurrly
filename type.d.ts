@@ -49,6 +49,7 @@ declare global {
     onCancelPress?: () => void
     isCancelling?: boolean
     onUpdate?: (updates: Pick<Subscription, 'paymentMethod' | 'startDate' | 'renewalDate'>) => void
+    onEditingChange?: (isEditing: boolean) => void
   }
 
   interface ListHeadingProps {

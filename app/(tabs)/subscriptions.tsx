@@ -10,6 +10,7 @@ const SafeAreaView = styled(RNSafeAreaView)
 const Subscriptions = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [isEditingId, setIsEditingId] = useState<string | null>(null)
   const { subscriptions, update, cancel } = useSubscriptions()
 
   const filteredSubscriptions = subscriptions.filter(
@@ -63,6 +64,7 @@ const Subscriptions = () => {
             onPress={() => setExpandedId(expandedId === item.id ? null : item.id)}
             onCancelPress={() => handleCancel(item.id)}
             onUpdate={(updates) => handleUpdate(item.id, updates)}
+            onEditingChange={(editing) => setIsEditingId(editing ? item.id : null)}
           />
         )}
         ListEmptyComponent={
@@ -70,11 +72,11 @@ const Subscriptions = () => {
             {searchQuery.trim() ? 'No subscriptions match your search.' : 'No subscriptions yet.'}
           </Text>
         }
-        contentContainerClassName="pb-30"
+        contentContainerStyle={{ paddingBottom: isEditingId ? 400 : 120 }}
         ItemSeparatorComponent={() => <View className="h-3" />}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="on-drag"
+        keyboardDismissMode={isEditingId ? 'none' : 'on-drag'}
       />
     </SafeAreaView>
   )

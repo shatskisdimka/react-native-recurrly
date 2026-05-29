@@ -28,6 +28,7 @@ export default function App() {
 
   const [expandedSubscriptionId, setExpandedSubscriptionId] = useState<string | null>(null)
   const [isModalVisible, setIsModalVisible] = useState(false)
+  const [isEditingId, setIsEditingId] = useState<string | null>(null)
 
   const { subscriptions, isLoading, create, update, cancel } = useSubscriptions()
 
@@ -157,6 +158,7 @@ export default function App() {
         onPress={() => handleSubscriptionPress(item)}
         onCancelPress={() => handleCancel(item.id)}
         onUpdate={(updates) => handleUpdate(item.id, updates)}
+        onEditingChange={(editing) => setIsEditingId(editing ? item.id : null)}
       />
     ),
     [expandedSubscriptionId, handleSubscriptionPress, handleCancel, handleUpdate],
@@ -179,7 +181,7 @@ export default function App() {
             <Text className="home-empty-state">No subscriptions yet.</Text>
           )
         }
-        contentContainerClassName="pb-30"
+        contentContainerStyle={{ paddingBottom: isEditingId ? 400 : 120 }}
       />
       <CreateSubscriptionModal
         visible={isModalVisible}
