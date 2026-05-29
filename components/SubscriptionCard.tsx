@@ -34,6 +34,7 @@ const SubscriptionCard = ({
   startDate,
   status,
   onUpdate,
+  onEditingChange,
 }: SubscriptionCardProps) => {
   const [isEditing, setIsEditing] = useState(false)
   const [draftPayment, setDraftPayment] = useState(paymentMethod || '')
@@ -44,6 +45,7 @@ const SubscriptionCard = ({
   useEffect(() => {
     if (!expanded) {
       setIsEditing(false)
+      onEditingChange?.(false)
       setDraftPayment(paymentMethod || '')
       setDraftStartDate(startDate ? dayjs(startDate).format('MM/DD/YYYY') : '')
     }
@@ -80,12 +82,11 @@ const SubscriptionCard = ({
   }
 
   return (
-    <Pressable
-      onPress={onPress}
+    <View
       className={clsx('sub-card', expanded ? 'sub-card-expanded' : 'bg-card')}
       style={!expanded && color ? { backgroundColor: color } : undefined}
     >
-      <View className="sub-head">
+      <Pressable className="sub-head" onPress={onPress}>
         <View className="sub-main">
           <SubscriptionIcon icon_url={icon_url} name={name} className="sub-icon" textClassName="text-3xl font-sans-bold text-primary/50" />
           <View className="sub-copy">
@@ -104,7 +105,7 @@ const SubscriptionCard = ({
           <Text className="sub-price">{formatCurrency(price, currency)}</Text>
           <Text className="sub-billing">{formatBillingPeriod(billing)}</Text>
         </View>
-      </View>
+      </Pressable>
 
       {expanded && (
         <View className="sub-body">
@@ -231,7 +232,7 @@ const SubscriptionCard = ({
                 </View>
 
                 <View className="sub-actions">
-                  <Pressable className="sub-edit" onPress={() => setIsEditing(true)}>
+                  <Pressable className="sub-edit" onPress={() => { setIsEditing(true); onEditingChange?.(true) }}>
                     <Text className="sub-edit-text">Edit</Text>
                   </Pressable>
 
@@ -258,7 +259,7 @@ const SubscriptionCard = ({
           </View>
         </View>
       )}
-    </Pressable>
+    </View>
   )
 }
 
