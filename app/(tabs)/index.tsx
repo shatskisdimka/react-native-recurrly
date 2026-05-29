@@ -12,7 +12,7 @@ import { styled } from 'nativewind'
 import { useCallback, useMemo, useState } from 'react'
 import { ActivityIndicator, FlatList, Image, Pressable, Text, View } from 'react-native'
 import { SafeAreaView as RNSafeAreaView } from 'react-native-safe-area-context'
-import ListHeading from '../../components/ListHeading'
+import ListHeading from '@/components/ListHeading'
 
 const SafeAreaView = styled(RNSafeAreaView)
 
