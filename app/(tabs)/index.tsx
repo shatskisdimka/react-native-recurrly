@@ -69,36 +69,10 @@ export default function App() {
     setExpandedSubscriptionId((cur) => (cur === item.id ? null : item.id))
   }, [])
 
-  const handleCreateSubscription = useCallback(
-    async (newSubscription: Subscription) => {
-      try {
-        await create(newSubscription)
-      } catch (e) {
-        console.error('Failed to save subscription:', e)
-      }
-    },
-    [create],
-  )
-
-  const handleUpdate = useCallback(
-    async (id: string, updates: Pick<Subscription, 'paymentMethod' | 'startDate' | 'renewalDate'>) => {
-      try {
-        await update(id, updates)
-      } catch (e) {
-        console.error('Failed to update subscription:', e)
-      }
-    },
-    [update],
-  )
-
   const handleCancel = useCallback(
     async (id: string) => {
-      try {
-        await cancel(id)
-        setExpandedSubscriptionId((cur) => (cur === id ? null : cur))
-      } catch (e) {
-        console.error('Failed to cancel subscription:', e)
-      }
+      await cancel(id)
+      setExpandedSubscriptionId((cur) => (cur === id ? null : cur))
     },
     [cancel],
   )
@@ -157,11 +131,11 @@ export default function App() {
         expanded={expandedSubscriptionId === item.id}
         onPress={() => handleSubscriptionPress(item)}
         onCancelPress={() => handleCancel(item.id)}
-        onUpdate={(updates) => handleUpdate(item.id, updates)}
+        onUpdate={(updates) => update(item.id, updates)}
         onEditingChange={(editing) => setIsEditingId(editing ? item.id : null)}
       />
     ),
-    [expandedSubscriptionId, handleSubscriptionPress, handleCancel, handleUpdate],
+    [expandedSubscriptionId, handleSubscriptionPress, handleCancel],
   )
 
   return (
@@ -186,7 +160,7 @@ export default function App() {
       <CreateSubscriptionModal
         visible={isModalVisible}
         onClose={() => setIsModalVisible(false)}
-        onSubmit={handleCreateSubscription}
+        onSubmit={create}
       />
     </SafeAreaView>
   )
