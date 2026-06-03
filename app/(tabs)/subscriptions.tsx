@@ -20,24 +20,9 @@ const Subscriptions = () => {
       subscription.plan?.toLowerCase().includes(searchQuery.toLowerCase()),
   )
 
-  const handleUpdate = async (
-    id: string,
-    updates: Pick<Subscription, 'paymentMethod' | 'startDate' | 'renewalDate'>,
-  ) => {
-    try {
-      await update(id, updates)
-    } catch (e) {
-      console.error('Failed to update subscription:', e)
-    }
-  }
-
   const handleCancel = async (id: string) => {
-    try {
-      await cancel(id)
-      if (expandedId === id) setExpandedId(null)
-    } catch (e) {
-      console.error('Failed to cancel subscription:', e)
-    }
+    await cancel(id)
+    if (expandedId === id) setExpandedId(null)
   }
 
   return (
@@ -63,7 +48,7 @@ const Subscriptions = () => {
             expanded={expandedId === item.id}
             onPress={() => setExpandedId(expandedId === item.id ? null : item.id)}
             onCancelPress={() => handleCancel(item.id)}
-            onUpdate={(updates) => handleUpdate(item.id, updates)}
+            onUpdate={(updates) => update(item.id, updates)}
             onEditingChange={(editing) => setIsEditingId(editing ? item.id : null)}
           />
         )}
