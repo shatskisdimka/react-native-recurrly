@@ -6,8 +6,11 @@ import { useFonts } from 'expo-font'
 import { SplashScreen, Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { useEffect } from 'react'
+import { LogBox } from 'react-native'
 
 SplashScreen.preventAutoHideAsync()
+
+LogBox.ignoreLogs(['The action \'REPLACE\' with payload'])
 
 const queryClient = new QueryClient()
 
