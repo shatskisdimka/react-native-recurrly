@@ -10,11 +10,11 @@ Track recurring expenses across services like Netflix, Spotify, and iCloud. See 
 
 | Home & Edit | Create subscription | Upcoming renewals |
 |:-----------:|:-------------------:|:-----------------:|
-| ![Home and edit card](assets/screenshots/1.gif) | ![Create subscription](assets/screenshots/2.gif) | ![Upcoming renewals](assets/screenshots/3.gif) |
+| <img src="assets/screenshots/1.gif" width="220"/> | <img src="assets/screenshots/2.gif" width="220"/> | <img src="assets/screenshots/3.gif" width="220"/> |
 
-| Search | Insights | History |
+| Search | Monthly Insights | History |
 |:------:|:--------:|:-------:|
-| ![Subscription search](assets/screenshots/4.gif) | ![Monthly insights](assets/screenshots/5.gif) | ![History clear all](assets/screenshots/6.gif) |
+| <img src="assets/screenshots/4.gif" width="220"/> | <img src="assets/screenshots/5.gif" width="220"/> | <img src="assets/screenshots/6.gif" width="220"/> |
 
 ---
 
